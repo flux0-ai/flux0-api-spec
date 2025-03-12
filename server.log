@@ -1,0 +1,6 @@
+{"event": "[<main>] Flux0 server version 0.0.0", "timestamp": "2025-03-12T12:44:52.460895Z", "level": "info", "correlation": "<main>"}
+{"event": "[<main>] Server is ready", "timestamp": "2025-03-12T12:44:52.499765Z", "level": "info", "correlation": "<main>"}
+{"event": "[RID(K9qY7iNI6Q)] HTTP Request: GET /openapi.json started", "timestamp": "2025-03-12T12:44:53.144636Z", "level": "info", "correlation": "RID(K9qY7iNI6Q)"}
+{"event": "[RID(K9qY7iNI6Q)] HTTP Request: GET /openapi.json completed in 0.022s", "timestamp": "2025-03-12T12:44:53.166362Z", "level": "info", "correlation": "RID(K9qY7iNI6Q)"}
+{"event": "[RID(vSAg3C9zN5)] HTTP Request: GET /openapi.json started", "timestamp": "2025-03-12T12:44:53.202677Z", "level": "info", "correlation": "RID(vSAg3C9zN5)"}
+{"event": "[RID(vSAg3C9zN5)] HTTP Request: GET /openapi.json completed in 0.001s", "timestamp": "2025-03-12T12:44:53.203380Z", "level": "info", "correlation": "RID(vSAg3C9zN5)"}
