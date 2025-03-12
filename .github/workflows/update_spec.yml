@@ -1,0 +1,81 @@
+name: Update Spec
+
+on:
+    workflow_dispatch:
+      inputs:
+        branch:
+          description: 'Branch to update the spec from'
+          required: true
+          default: 'develop'
+  
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+    update_spec:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout branch commit
+              uses: actions/checkout@v4
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
+              with:
+                version: "0.6.5"
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.13"
+
+            - name: Install flux0 as a tool
+              run: uv tool install git+https://github.com/flux0-ai/flux0@${{inputs.branch}}
+
+            - name: Run the openapi server in background
+              run: |
+                    sudo apt-get update && sudo apt-get install -y tmux
+                    tmux new-session -d -s flux0_session 'uvx --from flux0 flux0-server --host 0.0.0.0 --port 8000 > server.log 2>&1'
+                    echo "Server started in tmux session: flux0_session"
+
+
+            - name: Wait for the server to be ready
+              run: |
+                for i in {1..10}; do
+                    if curl --silent --fail http://127.0.0.1:8080/openapi.json; then
+                      echo "Server is up!"
+                      exit 0
+                    fi
+                    echo "Waiting for server..."
+                    sleep 2
+                  done
+                  echo "Server failed to start" >&2
+                  cat server.log
+                  exit 1
+
+            - name: Stop the server
+              run: tmux kill-session -t flux0_session || true
+
+            - name: Ensure '${{ inputs.branch }}' branch exists
+              run: |
+                git fetch origin || true  # Fetch all branches, ignore errors if none exist
+                if git ls-remote --exit-code --heads origin ${{ inputs.branch }}; then
+                    echo "Branch ${{ inputs.branch }} exists remotely. Checking it out."
+                    git checkout ${{ inputs.branch }}
+                    git pull origin ${{ inputs.branch }} || true
+                else
+                    echo "Branch ${{ inputs.branch }} does not exist. Creating and pushing."
+                    git checkout -b ${{ inputs.branch }}
+                    git push --set-upstream origin ${{ inputs.branch }}  # Push it so GitHub knows about it
+                fi
+            
+            - name: Create a pull request
+              uses: peter-evans/create-pull-request@v7
+              with:
+                commit-message: "feat: update OpenAPI spec for flux0 branch ${{ inputs.branch }}"
+                title: "Update OpenAPI spec for branch `${{ inputs.branch }}`"
+                body: "This PR updates `openapi.json` in `${{ inputs.branch }}`."
+                branch: "update-spec-${{ inputs.branch }}" # Creates a new branch for the PR
+                base: ${{inputs.branch}} # Targets the specified branch
+                delete-branch: true # Deletes the update branch after merging
+      
