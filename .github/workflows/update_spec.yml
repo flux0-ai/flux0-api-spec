@@ -35,7 +35,7 @@ jobs:
             - name: Run the openapi server in background
               run: |
                     sudo apt-get update && sudo apt-get install -y tmux
-                    tmux new-session -d -s flux0_session 'uvx --from flux0 flux0-server --host 0.0.0.0 --port 8000 > server.log 2>&1'
+                    tmux new-session -d -s flux0_session 'uvx --from flux0-ai flux0-server --host 0.0.0.0 --port 8000 > server.log 2>&1'
                     echo "Server started in tmux session: flux0_session"
 
 
