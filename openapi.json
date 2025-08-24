@@ -1,12 +1,14 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "FastAPI",
+    "title": "Flux0 API",
+    "summary": "A powerful framework for deploying AI agents with multi-agent support, session management, event streaming, and LLM-agnostic integration.",
+    "description": "The Flux0 API enables developers to create, manage and deploy AI agents, interact with them via sessions, and handle event streaming using JSONPatch (RFC 6902). It is designed to support multi-agent workflows, facilitate LLM-agnostic integrations, and provide structured interactions with AI-powered assistants. The API is ideal for orchestrating intelligent assistants, tracking interactions, and ensuring dynamic and responsive AI applications.",
     "version": "0.1.0"
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8080",
+      "url": "http://localhost:8080",
       "description": "Local server"
     }
   ],
@@ -34,7 +36,7 @@
                       "name": "Drizzle",
                       "type": "weather",
                       "description": "An agent that checks the weather",
-                      "creation_utc": "2025-01-21T23:44:48"
+                      "created_at": "2025-01-21T23:44:48"
                     }
                   ]
                 }
@@ -76,7 +78,7 @@
                   "name": "Drizzle",
                   "type": "weather",
                   "description": "An agent that checks the weather",
-                  "creation_utc": "2025-01-21T23:44:48"
+                  "created_at": "2025-01-21T23:44:48"
                 }
               }
             }
@@ -129,7 +131,7 @@
                   "name": "Drizzle",
                   "type": "weather",
                   "description": "An agent that checks the weather",
-                  "creation_utc": "2025-01-21T23:44:48"
+                  "created_at": "2025-01-21T23:44:48"
                 }
               }
             }
@@ -158,8 +160,8 @@
         "tags": [
           "sessions"
         ],
-        "summary": "Create a new session",
-        "description": "Create a new session bettween a user and an agent.\n\nThe session will be associated with the provided agent and optionally with a user.\nIf no user is provided, a guest user will be created.",
+        "summary": "Create Session",
+        "description": "Create a new session between a user and an agent.\n\nThe session will be associated with the provided agent and optionally with a user.\nIf no user is provided, a guest user will be created.",
         "operationId": "create_session",
         "parameters": [
           {
@@ -202,6 +204,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid request parameters, such as missing agent ID or invalid session ID format."
           },
           "422": {
             "description": "Validation error in request parameters"
@@ -346,9 +351,9 @@
         "tags": [
           "sessions"
         ],
-        "summary": "Create and stream session events",
-        "description": "Creates a new event in the specified session and streams upcoming events.",
-        "operationId": "create_session_event",
+        "summary": "Create Event and Stream",
+        "description": "Creates a new user event in the specified session and streams upcoming events.",
+        "operationId": "create_event_and_stream",
         "parameters": [
           {
             "name": "session_id",
@@ -693,7 +698,7 @@
         ],
         "title": "Agent",
         "example": {
-          "creation_utc": "2025-01-21T23:44:48",
+          "created_at": "2025-01-21T23:44:48",
           "description": "An agent that checks the weather",
           "id": "vUfk4PgjTm",
           "name": "Drizzle",
@@ -719,7 +724,7 @@
         "example": {
           "data": [
             {
-              "creation_utc": "2025-01-21T23:44:48",
+              "created_at": "2025-01-21T23:44:48",
               "description": "An agent that checks the weather",
               "id": "vUfk4PgjTm",
               "name": "Drizzle",
@@ -1089,8 +1094,8 @@
         "description": "Parameters for creating a new event within a session.",
         "example": {
           "content": "What's the weather in SF?",
-          "kind": "message",
-          "source": "user"
+          "source": "user",
+          "type": "message"
         }
       },
       "EventDTO": {
@@ -1515,6 +1520,42 @@
               }
             ],
             "title": "Title"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "description": "Any valid JSON",
+                  "examples": [
+                    "\"foo\"",
+                    "[1, 2]",
+                    "{\"data\"=\"bar\", \"data2\"=\"baz\"}"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "manual",
+                  "record",
+                  "replay"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
           }
         },
         "additionalProperties": false,
@@ -1560,6 +1601,16 @@
               "v9pg5Zv3h4"
             ]
           },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "manual",
+              "record",
+              "replay"
+            ],
+            "title": "Mode"
+          },
           "title": {
             "anyOf": [
               {
@@ -1587,6 +1638,25 @@
             "examples": [
               "2025-01-25T22:41:41"
             ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "description": "Any valid JSON",
+                  "examples": [
+                    "\"foo\"",
+                    "[1, 2]",
+                    "{\"data\"=\"bar\", \"data2\"=\"baz\"}"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
           }
         },
         "additionalProperties": false,
@@ -1595,6 +1665,7 @@
           "id",
           "agent_id",
           "user_id",
+          "mode",
           "consumption_offsets",
           "created_at"
         ],
